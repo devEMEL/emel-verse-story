@@ -17,6 +17,12 @@ import { ErrorPopup } from './popups/ErrorPopup';
 import { ToastPopup } from './popups/ToastPopup';
 import { UPDATE_COLLECTION } from '@/mutations/collectionMutations';
 import { GET_COLLECTIONS } from '@/queries/collectionQueries';
+import { useRegisterIPPopup } from '@/hooks/useRegisterIPPopup';
+import { RegisterIPPopup } from './popups/RegisterIPPopup';
+import { IpMetadata } from '@story-protocol/core-sdk'
+import { storyClient } from '@/config/storyClient';
+import { Address } from 'viem';
+import { createHash } from 'crypto';
 
 interface Collection {
     id: string;
@@ -57,16 +63,19 @@ export const MintButton: React.FC<MintButtonProps> = ({
     // const { isOpen, openPopup, closePopup } = usePopup();
     const { isOpen: isToastOpen, openPopup: openToastPopup, closePopup: closeToastPopup } = useToastify();
     const { isOpen: isErrorOpen, openPopup: openErrorPopup, closePopup: closeErrorPopup } = useErrorPopup();
+    const { isOpen: isRegisterIPOpen, openPopup: openRegisterIPPopup, closePopup: closeRegisterIPPopup } = useRegisterIPPopup();
 
     const [errorMessage, setErrorMessage] = useState<string>("Lorem ipsum dolor sit amet consectetur adipisicing elit. Fugit libero optio adipisci eos atque culpa corporis error eum maxime suscipit quibusdam, veritatis et laborum pariatur quod, alias in nobis magnam.");
     const [loadingMessage, setLoadingMessage] = useState<string>("Loading...");
+    const [registerIPMessage, setRegisterIPMessage] = useState<string>("Loading...");
     const [eventName, setEventName] = useState<string>("");
     const [eventImageUrl, setEventImageUrl] = useState<string>("");
 
     const provider = useEthersProvider();
     const signer = useEthersSigner();
     const { address } = useAccount();
-    const chainId = useChainId()
+    // const chainId = useChainId()
+    const chainId = 1516;
 
     const [createNFT, { loading, error }] = useMutation(CREATE_NFT, {
         update(cache, { data: { createNFT } }) {
@@ -161,29 +170,73 @@ export const MintButton: React.FC<MintButtonProps> = ({
         };
         console.log(eventObj);
 
-        await createNFT({variables: {chainId: String(chainId), name: String(eventObj.name), symbol: String(eventObj.symbol), description: String(eventObj.description), collectionAddress: String(eventObj.collectionAddress), tokenId: String(eventObj.tokenId), ownerAddress: String(eventObj.owner), mintedAt: String(eventObj.createdAt), imageUrl: String(eventObj.imageUrl)}});
-        //increment collection's mintedAmount
-        console.log({id: String(eventObj.collectionAddress)})
-        await updateCollection({ variables: { id: String(eventObj.collectionAddress) }});
-
 
         return {
-            name: eventObj.name,
-            tokenId: eventObj.tokenId,
-            imageURI: eventObj.imageUrl,
+            eventObj,
+            // name: eventObj.name,
+            // tokenId: eventObj.tokenId,
+            // imageURI: eventObj.imageUrl,
+            tokenURI,
+            metadata
         }
     }
     const mintCollection = async (e: FormEvent) => {
         e.preventDefault();
 
         try {
-            const { name, tokenId, imageURI } = await handleMintCollection();
-                    
-            setEventName(`${name} #${tokenId}`);
+            const { eventObj, tokenURI, metadata } = await handleMintCollection();
+            
+            setEventName(`${name} #${eventObj.tokenId}`);
             // imageURIToSrc
-            setEventImageUrl(imageURI);
+            setEventImageUrl(eventObj.imageUrl);
 
             closeToastPopup();
+            //// register ip popup...
+            openRegisterIPPopup()
+            setRegisterIPMessage("Registering IP...");
+            // function to register ip
+            // setup ip metadata
+            const ipMetadata: IpMetadata = storyClient.ipAsset.generateIpMetadata({
+                title: collection.name,
+                description: collection.description,
+                watermarkImg: collection.imageUrl,
+                attributes: [
+                  {
+                    key: 'Rarity',
+                    value: 'Common',
+                  },
+                ],
+              });
+            const ipIpfsHash = await getTokenURI(ipMetadata)
+            const ipHash = createHash('sha256').update(JSON.stringify(ipMetadata)).digest('hex')
+            // mint ip
+
+            const nftHash = createHash('sha256').update(JSON.stringify(metadata)).digest('hex');//.......
+            const response = await storyClient.ipAsset.registerIpAndAttachPilTerms({
+                nftContract: collection.id as Address,
+                tokenId: eventObj.tokenId!,
+                terms: [], // IP already has non-commercial social remixing terms. You can add more here.
+                ipMetadata: {
+                  ipMetadataURI: `https://ipfs.io/ipfs/${ipIpfsHash}`,
+                  ipMetadataHash: `0x${ipHash}`,
+                  nftMetadataURI: `https://ipfs.io/ipfs/${tokenURI.split('//')[1]}`,
+                  nftMetadataHash: `0x${nftHash}`,
+                },
+                txOptions: { waitForTransaction: true },
+              })
+            
+              console.log(`Root IPA created at transaction hash ${response.txHash}, IPA ID: ${response.ipId}`)
+              console.log(`View on the explorer: https://explorer.story.foundation/ipa/${response.ipId}`);
+
+              await createNFT({variables: {chainId: String(chainId), name: String(eventObj.name), symbol: String(eventObj.symbol), description: String(eventObj.description), collectionAddress: String(eventObj.collectionAddress), tokenId: String(eventObj.tokenId), ownerAddress: String(eventObj.owner), mintedAt: String(eventObj.createdAt), imageUrl: String(eventObj.imageUrl), ipId: String(response.ipId)}});
+
+              await updateCollection({ variables: { id: String(eventObj.collectionAddress) }});
+
+
+            //////
+            closeRegisterIPPopup()
+
+            // add the ipid to database.....
 
             // display success popup (define the image url and name)
             openPopup();
@@ -202,7 +255,7 @@ export const MintButton: React.FC<MintButtonProps> = ({
     return (
         <div>
 
-<SuccessPopup
+                <SuccessPopup
                     isOpen={isOpen}
                     onClose={onClose}
                     nftName={eventName}
@@ -217,8 +270,11 @@ export const MintButton: React.FC<MintButtonProps> = ({
                  <ToastPopup
                       isVisible={isToastOpen}
                       message={loadingMessage}
-                     
                  />
+                 <RegisterIPPopup
+                    isVisible={isRegisterIPOpen}
+                    message={registerIPMessage}
+                  />
 
 <button
             onClick={address && mintCollection}

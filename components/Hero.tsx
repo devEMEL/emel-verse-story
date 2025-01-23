@@ -4,7 +4,7 @@ const Hero = () => {
     const networks = [
         {
             icon: <Workflow className="w-6 h-6" />,
-            name: 'Monad Devnet',
+            name: 'story Odyssey Testnet',
         },
         // {
         //     icon: <Network className="w-6 h-6" />,

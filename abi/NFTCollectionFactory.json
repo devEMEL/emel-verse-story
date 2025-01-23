@@ -9,8 +9,8 @@
             "address": "0x9536D5AABc59F130147c56576A2a88b01e8fc710"
         },
         {
-            "name": "monadDevnet",
-            "address": "0xAfF72Db3fA597546517d172be9A530E99AEDddFE"
+            "name": "storyOdysseyTestnet",
+            "address": "0x9536D5AABc59F130147c56576A2a88b01e8fc710"
         }
     ],
     "abi": [
