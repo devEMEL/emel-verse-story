@@ -12,6 +12,7 @@ export const NFTType = gql`
         ownerAddress: String!
         mintedAt: String!
         imageUrl: String!
+        ipId: String!
     }
 
     extend type Query {
@@ -31,6 +32,7 @@ export const NFTType = gql`
             ownerAddress: String!
             mintedAt: String!
             imageUrl: String!
+            ipId: String!
         ): NFT
     }
 `;

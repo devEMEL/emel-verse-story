@@ -15,6 +15,7 @@ const nftSchema = new mongoose.Schema(
         ownerAddress: { type: String },
         mintedAt: { type: String},
         imageUrl: { type: String},
+        ipId: { type: String},
     },
     {
         timestamps: true,

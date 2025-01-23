@@ -13,6 +13,7 @@ export const GET_NFTS = gql`
             ownerAddress
             mintedAt
             imageUrl
+            ipId
         }
     }
 `;
@@ -30,6 +31,7 @@ export const GET_NFT = gql`
             ownerAddress
             mintedAt
             imageUrl
+            ipId
         }
     }
 `;
@@ -48,6 +50,7 @@ export const GET_NFTS_BY_OWNER = gql`
             ownerAddress
             mintedAt
             imageUrl
+            ipId
         }
     }
 
