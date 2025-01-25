@@ -10,6 +10,8 @@ const connectionString = process.env.MONGODB_CONNECTION_STRING.replace(
     process.env.MONGODB_PASSWORD
 );
 
+console.log({connectionString: process.env.MONGODB_CONNECTION_STRING});
+
 export const connectDB = async () => {
     const conn = await mongoose.connect(connectionString);
     console.log(`Mongodb Connected: ${conn.connection.host}`);

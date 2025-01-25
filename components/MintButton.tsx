@@ -1,4 +1,4 @@
-// @ts-nocheck
+
 'use client';
 import { getTokenURI, weiToEther } from '@/utils';
 import { ethers } from 'ethers';
@@ -23,6 +23,7 @@ import { IpMetadata } from '@story-protocol/core-sdk'
 import { storyClient } from '@/config/storyClient';
 import { Address } from 'viem';
 import { createHash } from 'crypto';
+
 
 interface Collection {
     id: string;
@@ -60,6 +61,8 @@ export const MintButton: React.FC<MintButtonProps> = ({
 
 
 
+    
+
     // const { isOpen, openPopup, closePopup } = usePopup();
     const { isOpen: isToastOpen, openPopup: openToastPopup, closePopup: closeToastPopup } = useToastify();
     const { isOpen: isErrorOpen, openPopup: openErrorPopup, closePopup: closeErrorPopup } = useErrorPopup();
@@ -75,6 +78,7 @@ export const MintButton: React.FC<MintButtonProps> = ({
     const signer = useEthersSigner();
     const { address } = useAccount();
     // const chainId = useChainId()
+
     const chainId = 1516;
 
     const [createNFT, { loading, error }] = useMutation(CREATE_NFT, {
@@ -212,16 +216,10 @@ export const MintButton: React.FC<MintButtonProps> = ({
             // mint ip
 
             const nftHash = createHash('sha256').update(JSON.stringify(metadata)).digest('hex');//.......
-            const response = await storyClient.ipAsset.registerIpAndAttachPilTerms({
+            const response = await storyClient.ipAsset.register({
                 nftContract: collection.id as Address,
-                tokenId: eventObj.tokenId!,
-                terms: [], // IP already has non-commercial social remixing terms. You can add more here.
-                ipMetadata: {
-                  ipMetadataURI: `https://ipfs.io/ipfs/${ipIpfsHash}`,
-                  ipMetadataHash: `0x${ipHash}`,
-                  nftMetadataURI: `https://ipfs.io/ipfs/${tokenURI.split('//')[1]}`,
-                  nftMetadataHash: `0x${nftHash}`,
-                },
+                tokenId: eventObj.tokenId!,   
+
                 txOptions: { waitForTransaction: true },
               })
             
@@ -243,6 +241,7 @@ export const MintButton: React.FC<MintButtonProps> = ({
         } catch(err) {
             // close toast
             closeToastPopup();
+            closeRegisterIPPopup()
             console.log({errorMessage: err})
             setErrorMessage(String(err));
             openErrorPopup();
