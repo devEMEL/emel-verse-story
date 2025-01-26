@@ -1,17 +1,16 @@
-//@ts-nocheck
+// @ts-nocheck
 
 import { StoryClient, StoryConfig } from '@story-protocol/core-sdk'
-import { http } from 'viem'
-import { privateKeyToAccount, Address, Account } from 'viem/accounts';
-import dotenv from 'dotenv';
+import { http, Address } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts';
+import { configDotenv } from 'dotenv';
 
-dotenv.config();
+configDotenv();
 
-const privateKey: Address = `0x${process.env.STORY_WALLET_PRIVATE_KEY}`
 
-export const account: Account = privateKeyToAccount(privateKey);
+export const account = privateKeyToAccount(process.env.NEXT_PUBLIC_STORY_WALLET_PRIVATE_KEY as Address);
+console.log({account});
 
-// console.log({account});
 
 const config: StoryConfig = {  
   account,  

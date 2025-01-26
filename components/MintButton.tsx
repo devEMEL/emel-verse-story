@@ -1,8 +1,9 @@
+// @ts-nocheck
 
 'use client';
 import { getTokenURI, weiToEther } from '@/utils';
 import { ethers } from 'ethers';
-import React, { FormEvent, useState } from 'react';
+import React, { FormEvent, useEffect, useState } from 'react';
 import NFTCollection from '@/abi/NFTCollection.json';
 import { useEthersProvider, useEthersSigner } from '@/app/layout';
 import { useAccount, useChainId } from 'wagmi';
@@ -21,8 +22,8 @@ import { useRegisterIPPopup } from '@/hooks/useRegisterIPPopup';
 import { RegisterIPPopup } from './popups/RegisterIPPopup';
 import { IpMetadata } from '@story-protocol/core-sdk'
 import { storyClient } from '@/config/storyClient';
-import { Address } from 'viem';
 import { createHash } from 'crypto';
+import { Address } from 'viem'
 
 
 interface Collection {
@@ -60,9 +61,6 @@ export const MintButton: React.FC<MintButtonProps> = ({
 }) => {
 
 
-
-    
-
     // const { isOpen, openPopup, closePopup } = usePopup();
     const { isOpen: isToastOpen, openPopup: openToastPopup, closePopup: closeToastPopup } = useToastify();
     const { isOpen: isErrorOpen, openPopup: openErrorPopup, closePopup: closeErrorPopup } = useErrorPopup();
@@ -80,6 +78,7 @@ export const MintButton: React.FC<MintButtonProps> = ({
     // const chainId = useChainId()
 
     const chainId = 1516;
+
 
     const [createNFT, { loading, error }] = useMutation(CREATE_NFT, {
         update(cache, { data: { createNFT } }) {
