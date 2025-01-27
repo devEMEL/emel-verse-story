@@ -13,6 +13,7 @@ interface NFT {
     ownerAddress: string;
     mintedAt: string;
     imageUrl: string;
+    ipId: string;
 }
 
 interface NFTProps {
@@ -39,6 +40,11 @@ const NFTCard: React.FC<NFTProps> = ({ nft }) => {
                     </h3>
                     <p className="text-sm text-white/80 mb-1">
                         Contract: {truncateAddress(nft.collectionAddress)}
+                    </p>
+                    <p className="text-sm text-white/80 mb-1">
+                        IpID: {" "}
+                        <a href={`https://explorer.story.foundation/ipa/${nft.ipId}`} target='blank'>{truncateAddress(nft.ipId)}</a>
+                        
                     </p>
                 </div>
             </div>

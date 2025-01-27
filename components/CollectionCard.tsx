@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { formatRelativeTime, truncateAddress, weiToEther } from '../utils/index';
 import Link from 'next/link';
 import { useImageLoader } from '@/hooks/useImageLoader';
@@ -28,6 +28,10 @@ export const CollectionCard: React.FC<CollectionCardProps> = ({
     
     const { imageSrc, isLoading, error } = useImageLoader(collection.imageUrl);
 
+    useEffect(() => {
+        console.log({collection});
+    }, [])
+
 
     return (
         <div className="bg-black rounded-lg shadow-xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-white/20 hover:-translate-y-1">
@@ -55,6 +59,7 @@ export const CollectionCard: React.FC<CollectionCardProps> = ({
                     <p className="text-sm font-medium text-white">
                         {weiToEther(String(collection.price))} MON
                     </p>
+                   
                 </div>
             </Link>
         </div>

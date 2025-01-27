@@ -12,6 +12,7 @@ interface NFT {
     ownerAddress: string;
     mintedAt: string;
     imageUrl: string;
+    ipId: string;
 }
 
 interface MyNFTsProps {
